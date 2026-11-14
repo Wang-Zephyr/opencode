@@ -628,6 +628,25 @@ describe("WebFetchTool registration", () => {
     }),
   )
 
+  it.effect("preserves placeholder anchors as ordinary Markdown content", () =>
+    Effect.gen(function* () {
+      reset()
+      respond = () =>
+        Effect.succeed(
+          new Response(
+            '<p><a id="section"></a>See <a>Overview</a> and <code>A<a>B</a>C</code>. <a href="">Reload</a>.</p>',
+            { headers: { "content-type": "text/html" } },
+          ),
+        )
+      const registry = yield* Tool.Service
+
+      expect(yield* executeTool(registry, call({ url: "https://1.1.1.1/guide", format: "markdown" }))).toMatchObject({
+        status: "completed",
+        content: [{ type: "text", text: "See Overview and `ABC`. [Reload]()." }],
+      })
+    }),
+  )
+
   it.effect("rejects declared and streamed oversized bodies", () =>
     Effect.gen(function* () {
       reset()

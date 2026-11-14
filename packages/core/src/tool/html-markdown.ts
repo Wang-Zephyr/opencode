@@ -338,6 +338,8 @@ export function convertHTMLToMarkdown(html: string) {
         return
       }
       if (name === "a") {
+        const href = attributes.href
+        if (href === undefined) return
         if (activeLink && activeCode?.inline) {
           const parent = stack.findLast(
             (candidate) => candidate.link === activeLink && candidate.linkCode === activeCode,
@@ -357,7 +359,7 @@ export function convertHTMLToMarkdown(html: string) {
           if (activeCode.text) finishCode(activeCode)
           activeCode.text = ""
           activeCode = undefined
-          frame.link = { href: attributes.href ?? "", title: attributes.title }
+          frame.link = { href, title: attributes.title }
           activeLink = frame.link
           linkOpen = true
           inline("[", true)
@@ -372,7 +374,7 @@ export function convertHTMLToMarkdown(html: string) {
           activeLink = undefined
           linkOpen = false
         }
-        frame.link = { href: attributes.href ?? "", title: attributes.title }
+        frame.link = { href, title: attributes.title }
         activeLink = frame.link
         linkOpen = true
         return inline("[", true)
